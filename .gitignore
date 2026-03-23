@@ -1,0 +1,17 @@
+# Python virtual environment
+venv/
+__pycache__/
+*.pyc
+*.pyo
+
+# Environment variables (Secrets)
+.env
+
+# Uploaded videos (Too large for Git)
+backend/uploads/
+
+# Node modules (Javascript dependencies)
+node_modules/
+
+# IDE settings
+.vscode/
