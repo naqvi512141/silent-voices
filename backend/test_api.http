@@ -1,0 +1,26 @@
+### Test Registration
+POST http://localhost:8000/auth/register
+Content-Type: application/json
+
+{
+  "full_name": "Test User",
+  "email": "test1@example.com",
+  "password": "testpassword123"
+}
+
+###
+
+### Test Login
+POST http://localhost:8000/auth/login
+Content-Type: application/json
+
+{
+  "email": "test1@example.com",
+  "password": "testpassword123"
+}
+
+###
+
+### Test Profile (replace TOKEN_HERE with the token from the login response)
+GET http://localhost:8000/auth/profile
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyX2lkIjoyLCJyb2xlIjoidXNlciIsImVtYWlsIjoidGVzdDFAZXhhbXBsZS5jb20iLCJleHAiOjE3NzQ0NDUwODB9.oi9DfEzXSXdz6l0x-vETmWLx7yyRh19U-vTFHlx7oww
