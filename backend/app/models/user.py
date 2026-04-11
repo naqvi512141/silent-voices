@@ -2,6 +2,7 @@
 # SQLAlchemy will look at this class and create the matching database table
 
 from sqlalchemy import Column, Integer, String, DateTime, func
+from sqlalchemy.orm import relationship
 from app.database import Base  # Inherit from Base to register as a table
 
 class User(Base):
@@ -28,3 +29,7 @@ class User(Base):
     
     # created_at is set automatically to the current time when a row is inserted
     created_at = Column(DateTime, server_default=func.now())
+
+    # --- STEP B: Add this line here ---
+    # This allows you to say 'my_user.sessions' to see all videos they uploaded
+    sessions = relationship("Session", back_populates="user", cascade="all, delete-orphan")
