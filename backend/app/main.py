@@ -1,6 +1,9 @@
 # main.py — The entry point of your FastAPI application
 # This is the first file that runs when you start the server
 
+# Add these two imports alongside the existing user import
+from app.models import user, session   # This tells Base about the new tables
+
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from app.database import engine, Base
