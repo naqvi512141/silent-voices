@@ -15,3 +15,14 @@ node_modules/
 
 # IDE settings
 .vscode/
+
+# Machine Learning Data & Models
+backend/ml_training/asl_landmarks.csv
+backend/models/gesture_model.pkl
+
+# Uploaded Videos (Safety first!)
+backend/uploads/*
+
+# Python caches
+**/__pycache__/
+*.pyc
