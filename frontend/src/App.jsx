@@ -1,47 +1,65 @@
-// App.jsx — The root component that defines routing and wraps everything in context
+// App.jsx — Final Sprint 3 version with all routes and guards.
 
 import React from 'react';
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { AuthProvider, useAuth } from './context/AuthContext';
-import LoginPage from './pages/LoginPage';
-import RegisterPage from './pages/RegisterPage';
-import DashboardPage from './pages/DashboardPage';
+import { ThemeProvider } from './context/ThemeContext';
+import LoginPage      from './pages/LoginPage';
+import RegisterPage   from './pages/RegisterPage';
+import DashboardPage  from './pages/DashboardPage';
+import HistoryPage    from './pages/HistoryPage';
+import VocabGuidePage from './pages/VocabGuidePage';
+import AdminPage      from './pages/AdminPage';
 
-// ProtectedRoute is a guard — if the user is not logged in,
-// redirect them to /login instead of showing the protected page
+// Redirects to /login if the user has no valid token
 function ProtectedRoute({ children }) {
     const { token } = useAuth();
-    return token ? children : <Navigate to="/login" />;
+    return token ? children : <Navigate to="/login" replace />;
+}
+
+// Redirects to /dashboard if the user is not an admin
+// The role is read from the user object stored in AuthContext
+function AdminRoute({ children }) {
+    const { token, user } = useAuth();
+    if (!token)               return <Navigate to="/login" replace />;
+    if (user?.role !== 'admin') return <Navigate to="/dashboard" replace />;
+    return children;
 }
 
 function AppRoutes() {
     return (
         <Routes>
-            {/* Public routes — anyone can access */}
-            <Route path="/login" element={<LoginPage />} />
+            {/* Public routes */}
+            <Route path="/login"    element={<LoginPage />} />
             <Route path="/register" element={<RegisterPage />} />
-            
-            {/* Protected routes — only logged-in users can access */}
+
+            {/* Authenticated routes */}
             <Route path="/dashboard" element={
-                <ProtectedRoute>
-                    <DashboardPage />
-                </ProtectedRoute>
-            } />
-            
-            {/* Default redirect — going to "/" sends you to /login */}
-            <Route path="/" element={<Navigate to="/login" />} />
+                <ProtectedRoute><DashboardPage /></ProtectedRoute>} />
+            <Route path="/history"   element={
+                <ProtectedRoute><HistoryPage /></ProtectedRoute>} />
+            <Route path="/vocabulary" element={
+                <ProtectedRoute><VocabGuidePage /></ProtectedRoute>} />
+
+            {/* Admin-only route */}
+            <Route path="/admin" element={
+                <AdminRoute><AdminPage /></AdminRoute>} />
+
+            {/* Default */}
+            <Route path="/" element={<Navigate to="/login" replace />} />
         </Routes>
     );
 }
 
 function App() {
     return (
-        // BrowserRouter enables URL-based navigation
-        // AuthProvider makes auth state available to all child components
         <BrowserRouter>
-            <AuthProvider>
-                <AppRoutes />
-            </AuthProvider>
+            {/* ThemeProvider wraps everything so any component can read/toggle theme */}
+            <ThemeProvider>
+                <AuthProvider>
+                    <AppRoutes />
+                </AuthProvider>
+            </ThemeProvider>
         </BrowserRouter>
     );
 }
