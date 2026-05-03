@@ -1,35 +1,25 @@
-# user.py — Defines the 'users' table as a Python class
-# SQLAlchemy will look at this class and create the matching database table
+# user.py
+# Sprint 3 change: added is_active column so admins can deactivate accounts
+# without permanently deleting them (safer approach in production systems).
 
-from sqlalchemy import Column, Integer, String, DateTime, func
+from sqlalchemy import Column, Integer, String, DateTime, Boolean, func
 from sqlalchemy.orm import relationship
-from app.database import Base  # Inherit from Base to register as a table
+from app.database import Base
 
 class User(Base):
-    # This tells SQLAlchemy the name of the actual table in the database
     __tablename__ = "users"
 
-    # Each Column() call defines one column in the table
-    
-    # id is the primary key — a unique number that identifies each row
-    # autoincrement=True means PostgreSQL assigns it automatically (1, 2, 3, ...)
-    id = Column(Integer, primary_key=True, autoincrement=True)
-    
-    # Full name — up to 100 characters, required (nullable=False)
-    full_name = Column(String(100), nullable=False)
-    
-    # Email — must be unique across all users, required
-    email = Column(String(150), unique=True, nullable=False)
-    
-    # NEVER store plain text passwords — only the bcrypt hash
+    id              = Column(Integer, primary_key=True, autoincrement=True)
+    full_name       = Column(String(100), nullable=False)
+    email           = Column(String(150), unique=True, nullable=False)
     hashed_password = Column(String(255), nullable=False)
+    role            = Column(String(10), default="user")
     
-    # Role is either 'user' or 'admin' — default is 'user'
-    role = Column(String(10), default="user")
+    # is_active allows admins to deactivate accounts without hard-deleting them.
+    # Deactivated users cannot log in. Defaults to True for all new accounts.
+    is_active       = Column(Boolean, default=True, nullable=False)
     
-    # created_at is set automatically to the current time when a row is inserted
-    created_at = Column(DateTime, server_default=func.now())
-
-    # --- STEP B: Add this line here ---
-    # This allows you to say 'my_user.sessions' to see all videos they uploaded
-    sessions = relationship("Session", back_populates="user", cascade="all, delete-orphan")
+    created_at      = Column(DateTime, server_default=func.now())
+    
+    sessions        = relationship("Session", back_populates="user",
+                                   cascade="all, delete-orphan")

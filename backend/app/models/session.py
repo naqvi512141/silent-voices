@@ -13,17 +13,24 @@ class Session(Base):
     
     # Which user uploaded this video?
     # ForeignKey links this table to the users table.
-    # If the user is deleted, their sessions are also deleted (CASCADE).
     user_id = Column(Integer, ForeignKey("users.id", ondelete="CASCADE"), nullable=False)
     
-    video_filename = Column(String(255))          # Name of the uploaded file
-    translated_text = Column(Text)                # Final assembled sentence
+    video_filename = Column(String(255))           # Name of the uploaded file
+    translated_text = Column(Text)                 # Final assembled sentence
     avg_confidence = Column(Float)                # Average confidence across all gestures
     created_at = Column(DateTime, server_default=func.now())
 
     # 'relationship' lets you do session.gesture_results to get all related rows
     gesture_results = relationship("GestureResult", back_populates="session",
                                    cascade="all, delete-orphan")
+
+    # --- SPRINT 3 ADDITION START ---
+    # uselist=False ensures this is a One-to-One relationship
+    feedback = relationship("Feedback", back_populates="session",
+                            uselist=False, 
+                            cascade="all, delete-orphan")
+    # --- SPRINT 3 ADDITION END ---
+
     user = relationship("User", back_populates="sessions")
 
 

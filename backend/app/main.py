@@ -1,40 +1,33 @@
-# main.py
-#
-# PURPOSE: Entry point of the FastAPI application.
-# IMPORTANT ORDERING: Model imports must come BEFORE Base.metadata.create_all().
-# SQLAlchemy's Base only knows about a table if its model class has been imported.
-# If you call create_all() before importing session.py, the sessions and
-# gesture_results tables will NOT be created in the database.
+# main.py — Entry point of the Silent Voices FastAPI application.
+# CRITICAL: All model imports must come BEFORE Base.metadata.create_all().
 
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
 from app.database import engine, Base
 
-# ── Import ALL models before create_all() ─────────────────────────
-# Each import registers the table with SQLAlchemy's Base registry.
-# Missing an import here = missing table in the database.
-from app.models import user     # Registers the 'users' table
-from app.models import session  # Registers the 'sessions' and 'gesture_results' tables
+# ── Import ALL models BEFORE create_all() ──────────────────────────
+from app.models import user      # registers 'users' table
+from app.models import session   # registers 'sessions' + 'gesture_results'
+from app.models import feedback  # registers 'feedback' table  ← NEW Sprint 3
 
-# ── Create tables in PostgreSQL ────────────────────────────────────
-# safe to call multiple times — skips tables that already exist
+# Create any tables that don't exist yet
 Base.metadata.create_all(bind=engine)
 
-# ── Import routers ─────────────────────────────────────────────────
-from app.routers import auth    # /auth/register, /auth/login, /auth/profile
-from app.routers import video   # /translate/upload
+# ── Import all routers ──────────────────────────────────────────────
+from app.routers import auth        # /auth/*
+from app.routers import video       # /translate/upload
+from app.routers import history     # /history/*        ← NEW Sprint 3
+from app.routers import feedback    # /feedback/*       ← NEW Sprint 3
+from app.routers import admin       # /admin/*          ← NEW Sprint 3
+from app.routers import vocabulary  # /vocabulary/*     ← NEW Sprint 3
 
-# ── Create the FastAPI application instance ────────────────────────
 app = FastAPI(
     title="Silent Voices API",
     description="ASL to Text Translation System — FAST-NUCES SE Spring 2026",
-    version="2.0.0"
+    version="3.0.0"
 )
 
-# ── CORS — Cross-Origin Resource Sharing ──────────────────────────
-# Without this, the browser blocks all requests from React (port 3000)
-# to FastAPI (port 8000) because they are on different "origins."
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["http://localhost:3000"],
@@ -43,15 +36,14 @@ app.add_middleware(
     allow_headers=["*"]
 )
 
-# ── Register all routers ───────────────────────────────────────────
+# Register all routers
 app.include_router(auth.router)
 app.include_router(video.router)
+app.include_router(history.router)
+app.include_router(feedback.router)
+app.include_router(admin.router)
+app.include_router(vocabulary.router)
 
-# ── Health check endpoint ──────────────────────────────────────────
 @app.get("/")
 def root():
-    return {
-        "status": "running",
-        "message": "Silent Voices API is online",
-        "docs": "/docs"
-    }
+    return {"status": "running", "message": "Silent Voices API v3.0", "docs": "/docs"}

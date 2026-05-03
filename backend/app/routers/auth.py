@@ -89,6 +89,12 @@ def login(credentials: UserLoginSchema, db: Session = Depends(get_db)):
             detail="Incorrect email or password",
             headers={"WWW-Authenticate": "Bearer"}
         )
+    # Add this check inside the login function, after the password verification
+    if not user.is_active:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="This account has been deactivated. Please contact an administrator."
+    )
     
     # Step 3: Create the JWT token with useful claims baked in
     token = create_access_token(data={
