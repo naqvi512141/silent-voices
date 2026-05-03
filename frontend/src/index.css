@@ -1,13 +1,139 @@
-body {
-  margin: 0;
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
-    'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
-    sans-serif;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
+/* index.css — CSS custom properties (variables) power the entire theme system.
+   Switching from light to dark only requires toggling [data-theme] on <html>.
+   Every component uses var(--bg-primary), var(--text-primary), etc. — 
+   never hardcoded hex values. This ensures dark mode works everywhere instantly. */
+
+:root {
+  /* Light theme — default */
+  --bg-primary:      #ffffff;
+  --bg-secondary:    #f5f7fa;
+  --bg-card:         #ffffff;
+  --bg-input:        #ffffff;
+  --text-primary:    #1B3A6B;
+  --text-secondary:  #444444;
+  --text-muted:      #888888;
+  --border-color:    #dddddd;
+  --accent-teal:     #0D7377;
+  --accent-navy:     #1B3A6B;
+  --accent-light:    #D6E4F0;
+  --danger:          #c0392b;
+  --success:         #1e8449;
+  --shadow:          0 2px 8px rgba(0,0,0,0.08);
+  --nav-bg:          #1B3A6B;
+  --nav-text:        #ffffff;
 }
 
-code {
-  font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New',
-    monospace;
+[data-theme="dark"] {
+  --bg-primary:      #0f1117;
+  --bg-secondary:    #1a1d27;
+  --bg-card:         #1e2130;
+  --bg-input:        #252836;
+  --text-primary:    #e2e8f0;
+  --text-secondary:  #a0aec0;
+  --text-muted:      #718096;
+  --border-color:    #2d3748;
+  --accent-teal:     #0fa3a8;
+  --accent-navy:     #4a90d9;
+  --accent-light:    #1a3a5c;
+  --danger:          #e53e3e;
+  --success:         #38a169;
+  --shadow:          0 2px 8px rgba(0,0,0,0.4);
+  --nav-bg:          #111827;
+  --nav-text:        #e2e8f0;
 }
+
+/* Global reset */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+body {
+  font-family: 'Inter', 'Segoe UI', Arial, sans-serif;
+  background-color: var(--bg-secondary);
+  color: var(--text-secondary);
+  transition: background-color 0.25s ease, color 0.25s ease;
+  min-height: 100vh;
+}
+
+/* WCAG 2.1 focus outlines — never remove outline, only restyle it */
+*:focus-visible {
+  outline: 3px solid var(--accent-teal);
+  outline-offset: 2px;
+  border-radius: 3px;
+}
+
+/* Skip-to-content link — required for WCAG 2.1 keyboard navigation */
+.skip-link {
+  position: absolute;
+  top: -40px;
+  left: 0;
+  background: var(--accent-teal);
+  color: white;
+  padding: 8px 16px;
+  text-decoration: none;
+  border-radius: 0 0 4px 4px;
+  z-index: 1000;
+}
+.skip-link:focus { top: 0; }
+
+/* Reusable button base */
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  padding: 0.6rem 1.2rem;
+  border: none;
+  border-radius: 8px;
+  font-size: 0.95rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  text-decoration: none;
+}
+.btn:disabled { opacity: 0.55; cursor: not-allowed; }
+.btn-primary { background: var(--accent-navy); color: white; }
+.btn-primary:hover:not(:disabled) { background: #2a5298; }
+.btn-teal    { background: var(--accent-teal); color: white; }
+.btn-teal:hover:not(:disabled) { background: #0a5f62; }
+.btn-danger  { background: var(--danger); color: white; }
+.btn-danger:hover:not(:disabled) { filter: brightness(0.9); }
+.btn-ghost   { background: transparent; color: var(--text-secondary); border: 1px solid var(--border-color); }
+.btn-ghost:hover:not(:disabled) { background: var(--bg-secondary); }
+
+/* Card container */
+.card {
+  background: var(--bg-card);
+  border: 1px solid var(--border-color);
+  border-radius: 12px;
+  padding: 1.5rem;
+  box-shadow: var(--shadow);
+}
+
+/* Form inputs */
+input, select, textarea {
+  width: 100%;
+  padding: 0.6rem 0.9rem;
+  background: var(--bg-input);
+  border: 1px solid var(--border-color);
+  border-radius: 8px;
+  color: var(--text-secondary);
+  font-size: 1rem;
+  transition: border-color 0.2s;
+}
+input:focus, select:focus, textarea:focus {
+  border-color: var(--accent-teal);
+  outline: none;
+  box-shadow: 0 0 0 3px rgba(13,115,119,0.15);
+}
+
+/* Badge */
+.badge {
+  display: inline-block;
+  padding: 0.2rem 0.6rem;
+  border-radius: 999px;
+  font-size: 0.75rem;
+  font-weight: 600;
+}
+.badge-navy  { background: var(--accent-navy); color: white; }
+.badge-teal  { background: var(--accent-teal); color: white; }
+.badge-green { background: var(--success); color: white; }
+.badge-red   { background: var(--danger); color: white; }
