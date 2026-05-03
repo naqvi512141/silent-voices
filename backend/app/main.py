@@ -1,46 +1,57 @@
-# main.py — The entry point of your FastAPI application
-# This is the first file that runs when you start the server
+# main.py
+#
+# PURPOSE: Entry point of the FastAPI application.
+# IMPORTANT ORDERING: Model imports must come BEFORE Base.metadata.create_all().
+# SQLAlchemy's Base only knows about a table if its model class has been imported.
+# If you call create_all() before importing session.py, the sessions and
+# gesture_results tables will NOT be created in the database.
 
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
+
 from app.database import engine, Base
 
+# ── Import ALL models before create_all() ─────────────────────────
+# Each import registers the table with SQLAlchemy's Base registry.
+# Missing an import here = missing table in the database.
+from app.models import user     # Registers the 'users' table
+from app.models import session  # Registers the 'sessions' and 'gesture_results' tables
 
-# Import the models so that Base knows about them
-# Without this import, Base would not know the User table exists
-from app.models import user
-
-# Import and include the auth router
-from app.routers import auth
-
-# Create all tables that are defined in models that inherit from Base
-# This is safe to call multiple times — it skips tables that already exist
+# ── Create tables in PostgreSQL ────────────────────────────────────
+# safe to call multiple times — skips tables that already exist
 Base.metadata.create_all(bind=engine)
 
-# Create the FastAPI application instance
-# This is your "app" — all routes and settings attach to this object
+# ── Import routers ─────────────────────────────────────────────────
+from app.routers import auth    # /auth/register, /auth/login, /auth/profile
+from app.routers import video   # /translate/upload
+
+# ── Create the FastAPI application instance ────────────────────────
 app = FastAPI(
     title="Silent Voices API",
-    description="ASL to Text Translation System",
-    version="1.0.0"
+    description="ASL to Text Translation System — FAST-NUCES SE Spring 2026",
+    version="2.0.0"
 )
 
-# CORS — Cross-Origin Resource Sharing
-# This is necessary because your React frontend (running on port 3000)
-# and your FastAPI backend (running on port 8000) are on different "origins".
-# Without this, the browser will block all requests from React to FastAPI.
+# ── CORS — Cross-Origin Resource Sharing ──────────────────────────
+# Without this, the browser blocks all requests from React (port 3000)
+# to FastAPI (port 8000) because they are on different "origins."
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["http://localhost:3000"],  # React's development URL
+    allow_origins=["http://localhost:3000"],
     allow_credentials=True,
-    allow_methods=["*"],     # Allow GET, POST, PUT, DELETE, etc.
-    allow_headers=["*"],     # Allow all headers including Authorization
+    allow_methods=["*"],
+    allow_headers=["*"]
 )
 
-# Register the auth router — all its endpoints are now part of the app
+# ── Register all routers ───────────────────────────────────────────
 app.include_router(auth.router)
+app.include_router(video.router)
 
-# A simple test route — if you visit http://localhost:8000/ you should see this
+# ── Health check endpoint ──────────────────────────────────────────
 @app.get("/")
 def root():
-    return {"message": "Silent Voices API is running"}
+    return {
+        "status": "running",
+        "message": "Silent Voices API is online",
+        "docs": "/docs"
+    }
