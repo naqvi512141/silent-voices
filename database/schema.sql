@@ -32,3 +32,17 @@ CREATE TABLE gesture_results (
     confidence     FLOAT,
     frame_number   INTEGER
 );
+
+-- Sprint 3 additions
+
+-- Add is_active to users if not already done via ALTER TABLE
+ALTER TABLE users ADD COLUMN IF NOT EXISTS is_active BOOLEAN NOT NULL DEFAULT TRUE;
+
+-- Feedback table: stores user ratings on translation accuracy
+CREATE TABLE IF NOT EXISTS feedback (
+    id           SERIAL PRIMARY KEY,
+    session_id   INTEGER NOT NULL UNIQUE REFERENCES sessions(id) ON DELETE CASCADE,
+    rating       INTEGER NOT NULL CHECK (rating IN (0, 1)),
+    correction   TEXT,
+    submitted_at TIMESTAMP DEFAULT NOW()
+);
